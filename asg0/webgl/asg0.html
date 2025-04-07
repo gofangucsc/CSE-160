@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Draw a blue rectangle</title>
+  </head>
+ 
+  <body onload="main()">
+    <canvas id="example" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+
+    <br><br>
+
+    <label for="x1">v1: x</label>
+    <input type="number" id="x1" name="x1" required />
+
+    <label for="y1">y</label>
+    <input type="number" id="y1" name="y1" required/>
+
+    <br><br>
+
+    <label for="x2">v2: x</label>
+    <input type="number" id="x2" name="x2" required />
+
+    <label for="y2">y</label>
+    <input type="number" id="y2" name="y2" required/>
+
+    <br><br>
+
+    <input type="button" value="Draw" onclick="handleDrawEvent()">
+
+    <br><br>
+
+    <label for="operations">Operation: </label>
+
+    <select name="Operations" id="operations">
+      <option value="Add">Add</option>
+      <option value="Subtract">Subtract</option>
+      <option value="Multiply">Multiply</option>
+      <option value="Divide">Divide</option>
+      <option value="AngleBetween">Angle Between</option>
+      <option value="Area">Area</option>
+      <option value="Magnitude">Magnitude</option>
+      <option value="Normalize">Normalize</option>
+      
+    </select>
+
+    <label for="scaler">Scaler: </label>
+    <input type="number" id="scaler" name="scaler" required/>
+
+    <br><br>
+
+    <input type="button" value="Draw" onclick="handleDrawOperationEvent()">
+
+
+
+
+    <script src="asg0.js"></script>
+    <script src="lib/cuon-matrix-cse160.js"></script>
+  </body>
+</html>
