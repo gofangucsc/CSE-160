@@ -125,8 +125,8 @@ function handleDrawOperationEvent(){
   if(op == "Magnitude"){
     m1 = v1.magnitude();
     m2 = v2.magnitude();
-    console.log("Magnitude V1: " + m1);
-    console.log("Magnitude V2: " + m2);
+    console.log("Magnitude v1: " + m1);
+    console.log("Magnitude v2: " + m2);
 
   }
 
