@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Barracuda</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+    <p>
+
+    <p id="numdot"> XXX </p>
+
+  
+    Upper Tail <input type="range" min="-15" max="15" value="0" class="slider" id="uppertSlide">
+    Animation:
+    <button type="button" id="animationUppertOnButton">ON</button>
+    <button type="button" id="animationUppertOffButton">OFF</button>
+    <p>
+    Lower Tail <input type="range" min="-25" max="25" value="0" class="slider" id="lowertSlide">
+    Animation:
+    <button type="button" id="animationLowertOnButton">ON</button>
+    <button type="button" id="animationLowertOffButton">OFF</button>
+    <p>
+    Tail Fins <input type="range" min="-35" max="35" value="0" class="slider" id="finSlide">
+    Animation:
+    <button type="button" id="animationFinOnButton">ON</button>
+    <button type="button" id="animationFinOffButton">OFF</button>
+    <p>
+
+    Animate All:
+    <button type="button" id="animationallOnButton">ON</button>
+    <button type="button" id="animationallOffButton">OFF</button>
+    <p>
+    
+    Camera Angle <input type="range" min="0" max="360" value="0" class="slider" id="angleSlide">
+    <p>
+
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix.js"></script>
+    <script src="Point.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Circle.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Ramp.js"></script>
+    <script src="BlockyAnimal.js"></script>
+  </body>
+</html>
