@@ -459,20 +459,20 @@ function renderAllShapes(){
   var sky = new Cube();
   sky.color = [1.0,0.0,0,0,1.0];
   sky.textureNum = 1;
- //ssky.matrix.scale(10,10,10);
-  //sky.matrix.translate(-.1, -.5, -.4);
+  sky.matrix.scale(50,50,50);
+  sky.matrix.translate(-.1, -.5, -.4);
   sky.render();
 
   
-  matrix1 = new Matrix4();/*
+  matrix1 = new Matrix4();
   matrix1.translate(.5, 1, -3);
   matrix1.rotate(45,0,2,0);
   drawBarracuda(matrix1);
   matrix1.scale(.75,.75,.75)
   matrix1.translate(3, 0, 1.5);
-    */
+
   drawBarracuda(matrix1);
-  /*
+  
   matrix1.translate(2, 0, 2);
   drawBarracuda(matrix1);
 
@@ -502,7 +502,7 @@ function renderAllShapes(){
 
 
   drawMap();
-*/
+
 
   //Check the time at the end of the funciton and show on web page
   var duration = performance.now() - startTime;

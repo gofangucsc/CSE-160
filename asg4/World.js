@@ -194,9 +194,13 @@ let g_finAngle=0;
 let g_uppertAnimation=true;
 let g_lowertAnimation=true;
 let g_finAnimation=true;
+let g_normalOn=false;
 
 //Set up actions for the HTML UI elements
 function addActionsForHtmlUI(){
+
+  document.getElementById('normalOn').onclick = function() {g_normalOn=true;};
+  document.getElementById('normalOff').onclick = function() {g_normalOn=false;};
 /*
   // Button Events (Shape Type)
   document.getElementById('animationLowertOffButton').onclick = function() {g_lowertAnimation=false;};
@@ -479,8 +483,14 @@ function renderAllShapes(){
   //Draw the sky
   var sky = new Cube();
   sky.color = [1.0,0.0,0,0,1.0];
-  sky.textureNum = 1;
-  sky.matrix.scale(10,10,10);
+  if (g_normalOn){
+    sky.textureNum=-3;
+  } 
+
+  else{
+    sky.textureNum=1;
+  }
+  sky.matrix.scale(-10,-10,-10);
   sky.matrix.translate(-.1, -.5, -.4);
   sky.render();
 
@@ -536,6 +546,9 @@ function drawBarracuda(matrix){
   var mainBod = new Cube();
   mainBod.matrix = matrix;
   mainBod.color = [.1,0,.8,1];
+  if (g_normalOn){
+    mainBod.textureNum=-3;
+  } 
   //mainBod.textureNum=-2;
   mainBod.matrix.translate(0, -.3, -.3);
   //mainBod.matrix.rotate(-5,1,0,0);
@@ -555,6 +568,9 @@ function drawBarracuda(matrix){
   // Draw Upper tail
   var upperTail = new Cube();
   upperTail.color = [0,0,.8,1];
+   if (g_normalOn){
+    upperTail.textureNum=-3;
+  } 
   upperTail.matrix = bodyCoordinates;
   upperTail.matrix.translate(.005,.025,.4);
   upperTail.matrix.rotate(-g_uppertAngle,0,2,0);
@@ -566,6 +582,9 @@ function drawBarracuda(matrix){
   // Draw Lower tail
   var lowerTail = new Cube();
   lowerTail.color = [0,0,.8,1];
+   if (g_normalOn){
+    lowerTail.textureNum=-3;
+  } 
   lowerTail.matrix = lowertailCoordinates;
   lowerTail.matrix.translate(.015,.05,.3);
   lowerTail.matrix.rotate(-g_lowertAngle,0,2,0);
@@ -578,6 +597,9 @@ function drawBarracuda(matrix){
   // Top Tailfin
   var topFin = new Cube();
   topFin.color = [0,0,.8,.5];
+   if (g_normalOn){
+    topFin.textureNum=-3;
+  } 
   topFin.matrix = topfinCoordinates;
   topFin.matrix.translate(.035,.05,.3);
   topFin.matrix.rotate(-30,1,0,0);
@@ -590,6 +612,9 @@ function drawBarracuda(matrix){
   
   var botFin = new Cube();
   botFin.color = [0,0,.8,.5];
+   if (g_normalOn){
+    botFin.textureNum=-3;
+  } 
   botFin.matrix = botfinCoordinates;
   botFin.matrix.translate(.035,0,.3);
   botFin.matrix.rotate(30,1,0,0);
@@ -602,6 +627,9 @@ function drawBarracuda(matrix){
 
   var leftFin = new Cube();
   leftFin.color = [0,0,.8,.5];
+  if (g_normalOn){
+    leftFin.textureNum=-3;
+  }
   leftFin.matrix = leftfinCoordinates;
   leftFin.matrix.translate(-.2, 0, .15);
   leftFin.matrix.rotate(-45,0,0,1);
@@ -612,6 +640,9 @@ function drawBarracuda(matrix){
   //Right Fin
   var rightFin = new Cube();
   rightFin.color = [0,0,.8,.5];
+  if (g_normalOn){
+    rightFin.textureNum=-3;
+  }
   rightFin.matrix = rightfinCoordinates;
   rightFin.matrix.translate(.3, 0, .15);
   rightFin.matrix.rotate(45,0,0,1);
@@ -622,6 +653,9 @@ function drawBarracuda(matrix){
   //Dorsal Fin
   var dorsalFin = new Cube();
   dorsalFin.color = [0,0,.8,.5];
+  if (g_normalOn){
+    dorsalFin.textureNum=-3;
+  }
   dorsalFin.matrix = dorsalfinCoordinates;
   dorsalFin.matrix.translate(.055, .1, .4);
   dorsalFin.matrix.rotate(-45,1,0,0);
@@ -632,6 +666,9 @@ function drawBarracuda(matrix){
 
   var leftEye = new Cube();
   leftEye.color = [1,0,0,1];
+  if (g_normalOn){
+    leftEye.textureNum=-3;
+  }
   leftEye.matrix = lefteyeCoordinates;
   leftEye.matrix.translate(-.12, .2, -.1);
   //leftEye.matrix.rotate(45,0,0,1);
@@ -642,6 +679,9 @@ function drawBarracuda(matrix){
 
   var rightEye = new Cube();
   rightEye.color = [1,0,0,1];
+  if (g_normalOn){
+    rightEye.textureNum=-3;
+  }
   rightEye.matrix = righteyeCoordinates
   rightEye.matrix.translate(.25, .2, -.15);
   //rightEye.matrix.rotate(45,0,0,1);
@@ -653,6 +693,9 @@ function drawBarracuda(matrix){
   //Pupils
   var leftPupil = new Cube();
   leftPupil.color = [0,0,0,1];
+  if (g_normalOn){
+    leftPupil.textureNum=-3;
+  }
   leftPupil.matrix = leftpupilCoordinates;
   leftPupil.matrix.translate(-.03, .035, .02);
   leftPupil.matrix.scale(.05,.075,.075);
@@ -661,6 +704,9 @@ function drawBarracuda(matrix){
 
   var rightPupil = new Cube();
   rightPupil.color = [0,0,0,1];
+  if (g_normalOn){
+    rightPupil.textureNum=-3;
+  }
   rightPupil.matrix = rightpupilCoordinates
   rightPupil.matrix.translate(0.03, .035, .02);
   rightPupil.matrix.scale(.05,.075,.075);
