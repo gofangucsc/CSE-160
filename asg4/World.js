@@ -4,7 +4,9 @@ var VSHADER_SOURCE = `
   precision mediump float;
   attribute vec4 a_Position;
   attribute vec2 a_UV;
+  attribute vec3 a_Normal;
   varying vec2 v_UV;
+  varying vec3 v_Normal;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
   uniform mat4 u_ViewMatrix;
@@ -12,19 +14,24 @@ var VSHADER_SOURCE = `
   void main() {
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
+    v_Normal = a_Normal;
   }`
 //u_ProjectionMatrix * u_ViewMatrix *
 // Fragment shader program
 var FSHADER_SOURCE = `
   precision mediump float;
   varying vec2 v_UV;
+  varying vec3 v_Normal;
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
   uniform int u_whichTexture;
 
   void main() {
-    if (u_whichTexture == -2){
+    if (u_whichTexture == -3){
+      gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);                     //Use color
+
+    } else if (u_whichTexture == -2){
       gl_FragColor = u_FragColor;                     //Use color
 
     } else if (u_whichTexture == -1){
@@ -56,6 +63,8 @@ let u_GlobalRotateMatrix;
 let u_Sampler0;
 let u_Sampler1;
 let u_whichTexture;
+let a_Normal;
+let v_Normal;
 
 function setupWebGL(){
   // Retrieve <canvas> element
@@ -146,6 +155,18 @@ function connectVariablesToGLSL(){
   u_whichTexture = gl.getUniformLocation(gl.program, 'u_whichTexture');
   if (!u_whichTexture) {
     console.log('Failed to get the storage location of u_whichTexture');
+    return;
+  }
+
+  a_Normal = gl.getAttribLocation(gl.program, 'a_Normal');
+  if (a_Normal < 0){
+    console.log('Failed to get the storage location of a_Normal');
+    return;
+  }
+
+  v_Normal = gl.getAttribLocation(gl.program, 'v_Normal');
+  if (v_Normal < 0){
+    console.log('Failed to get the storage location of v_Normal');
     return;
   }
   
@@ -427,7 +448,7 @@ function renderAllShapes(){
 
   //Pass the projection matirx
   var projMat=new Matrix4();
-  projMat.setPerspective(50, canvas.width/canvas.height, 1, 100);
+  projMat.setPerspective(90, canvas.width/canvas.height, .1, 100);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
   //Pass the view matrix
@@ -450,27 +471,27 @@ function renderAllShapes(){
   var floor = new Cube();
   floor.color = [1.0,0.0,0,0,1.0];
   floor.textureNum=-1;
-  floor.matrix.translate(0, -.75, 0.0);
-  floor.matrix.scale(40, 0, 40);
-  floor.matrix.translate(-.25, 0, -0.2);
+  floor.matrix.translate(0, -2.49, 0.0);
+  floor.matrix.scale(18, 0, 13);
+  floor.matrix.translate(-.5, 0, -0.5);
   floor.render();
 
   //Draw the sky
   var sky = new Cube();
   sky.color = [1.0,0.0,0,0,1.0];
   sky.textureNum = 1;
- //ssky.matrix.scale(10,10,10);
-  //sky.matrix.translate(-.1, -.5, -.4);
+  sky.matrix.scale(10,10,10);
+  sky.matrix.translate(-.1, -.5, -.4);
   sky.render();
 
   
-  matrix1 = new Matrix4();/*
+  matrix1 = new Matrix4();
   matrix1.translate(.5, 1, -3);
-  matrix1.rotate(45,0,2,0);
+  matrix1.rotate(180,0,2,0);/*
   drawBarracuda(matrix1);
   matrix1.scale(.75,.75,.75)
   matrix1.translate(3, 0, 1.5);
-    */
+*/
   drawBarracuda(matrix1);
   /*
   matrix1.translate(2, 0, 2);
@@ -501,7 +522,7 @@ function renderAllShapes(){
   drawBarracuda(matrix3);
 
 
-  drawMap();
+  //drawMap();
 */
 
   //Check the time at the end of the funciton and show on web page
