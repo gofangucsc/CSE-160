@@ -7,6 +7,7 @@ var VSHADER_SOURCE = `
   attribute vec3 a_Normal;
   varying vec2 v_UV;
   varying vec3 v_Normal;
+  varying vec4 v_VertPos;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
   uniform mat4 u_ViewMatrix;
@@ -15,8 +16,9 @@ var VSHADER_SOURCE = `
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
     v_Normal = a_Normal;
+    v_VertPos = u_ModelMatrix * a_Position;
   }`
-//u_ProjectionMatrix * u_ViewMatrix *
+
 // Fragment shader program
 var FSHADER_SOURCE = `
   precision mediump float;
@@ -26,10 +28,14 @@ var FSHADER_SOURCE = `
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
   uniform int u_whichTexture;
+  uniform vec3 u_lightPos;
+  uniform vec3 u_cameraPos;
+  varying vec4 v_VertPos;
+  uniform bool u_lightOn;
 
   void main() {
     if (u_whichTexture == -3){
-      gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);                     //Use color
+      gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);   //Use normal debug color
 
     } else if (u_whichTexture == -2){
       gl_FragColor = u_FragColor;                     //Use color
@@ -45,6 +51,29 @@ var FSHADER_SOURCE = `
     }
       else{                                           //Error, put Redish
       gl_FragColor = vec4(1,.2,.2,1);
+    }
+    
+    vec3 lightVector = u_lightPos-vec3(v_VertPos);
+    float r = length(lightVector);
+    
+    vec3 L = normalize(lightVector);
+    vec3 N = normalize(v_Normal);
+    float nDotL = max(dot(N,L), 0.0);
+
+    vec3 R = reflect(-L,N);
+
+    vec3 E = normalize(u_cameraPos-vec3(v_VertPos));
+
+    float specular = pow(max(dot(E,R), 0.0), 64.0 * 0.8);
+
+    vec3 diffuse = vec3(1.0, 1.0, 0.9) * vec3(gl_FragColor) * nDotL * 0.7;
+    vec3 ambient = vec3(gl_FragColor) * 0.2;
+    if (u_lightOn) {
+      if (u_whichTexture == 0) {
+        gl_FragColor = vec4(specular+diffuse+ambient, 1.0);
+      } else {
+       gl_FragColor = vec4(diffuse+ambient, 1.0); 
+      }
     }
   }`
 
@@ -64,7 +93,10 @@ let u_Sampler0;
 let u_Sampler1;
 let u_whichTexture;
 let a_Normal;
-let v_Normal;
+let u_lightPos;
+let u_cameraPos;
+let u_lightOn;
+
 
 function setupWebGL(){
   // Retrieve <canvas> element
@@ -107,6 +139,25 @@ function connectVariablesToGLSL(){
     console.log('Failed to get the storage location of u_FragColor');
     return;
   }
+
+  u_lightOn = gl.getUniformLocation(gl.program, 'u_lightOn');
+  if (!u_lightOn) {
+    console.log('Failed to get the storage location of u_lightOn');
+    return;
+  }
+
+  u_lightPos = gl.getUniformLocation(gl.program, 'u_lightPos');
+  if (!u_lightPos) {
+    console.log('Failed to get the storage location of u_lightPos');
+    return;
+  }
+
+  u_cameraPos = gl.getUniformLocation(gl.program, 'u_cameraPos');
+  if (!u_cameraPos) {
+    console.log('Failed to get the storage location of u_cameraPos');
+    return;
+  }
+
 /*
   u_Size = gl.getUniformLocation(gl.program, 'u_Size');
   if (!u_Size) {
@@ -164,13 +215,6 @@ function connectVariablesToGLSL(){
     return;
   }
 
-  v_Normal = gl.getAttribLocation(gl.program, 'v_Normal');
-  if (v_Normal < 0){
-    console.log('Failed to get the storage location of v_Normal');
-    return;
-  }
-  
-
   //Set an initial value fo rhtis matrix to identity
   var identityM = new Matrix4();
   gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
@@ -195,10 +239,13 @@ let g_uppertAnimation=true;
 let g_lowertAnimation=true;
 let g_finAnimation=true;
 let g_normalOn=false;
+let g_lightOn=true;
+let g_lightPos=[0,1,-2];
 
 //Set up actions for the HTML UI elements
 function addActionsForHtmlUI(){
-
+  document.getElementById('lightOn').onclick = function() {g_lightOn=true;};
+  document.getElementById('lightOff').onclick = function() {g_lightOn=false;};
   document.getElementById('normalOn').onclick = function() {g_normalOn=true;};
   document.getElementById('normalOff').onclick = function() {g_normalOn=false;};
 /*
@@ -217,10 +264,15 @@ function addActionsForHtmlUI(){
   document.getElementById('uppertSlide').addEventListener('mousemove', function() { g_uppertAngle = this.value; renderAllShapes();});
   document.getElementById('lowertSlide').addEventListener('mousemove',  function() { g_lowertAngle = this.value; renderAllShapes();});
   document.getElementById('finSlide').addEventListener('mousemove',  function() { g_finAngle = this.value; renderAllShapes();});
+*/
+  //Light Slider Events
+  document.getElementById('lightSlideX').addEventListener('mousemove', function(ev) {if(ev.buttons == 1) {g_lightPos[0] = this.value/100; renderAllShapes();}});
+  document.getElementById('lightSlideY').addEventListener('mousemove', function(ev) {if(ev.buttons == 1) {g_lightPos[1] = this.value/100; renderAllShapes();}});
+  document.getElementById('lightSlideZ').addEventListener('mousemove', function(ev) {if(ev.buttons == 1) {g_lightPos[2] = this.value/100; renderAllShapes();}});
 
   //Size Slider Events
   document.getElementById('angleSlide').addEventListener('mousemove', function() {g_globalAngle = this.value; renderAllShapes(); });
-  */
+  
 }
 
 function initTextures(){
@@ -232,7 +284,7 @@ function initTextures(){
   //Register the event handler to be called on loading an image
   image0.onload = function(){ sendImageToTEXTURE0(image0);};
   //Tell the browser to load an image
-  image0.src = 'block.jpg'
+  image0.src = 'baboom.jpg'
 
   var image1 = new Image();  //Create the image object
   if (!image1){
@@ -364,6 +416,7 @@ function updateAnimationAngles() {
     g_finAngle = (25*Math.sin(g_seconds+10));
   }
   
+  g_lightPos[0] = Math.cos(g_seconds);
 
 }
 
@@ -452,7 +505,7 @@ function renderAllShapes(){
 
   //Pass the projection matirx
   var projMat=new Matrix4();
-  projMat.setPerspective(90, canvas.width/canvas.height, .1, 100);
+  projMat.setPerspective(90, 1*canvas.width/canvas.height, .1, 100);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
   //Pass the view matrix
@@ -467,6 +520,16 @@ function renderAllShapes(){
   var globalRotMat=new Matrix4().rotate(g_globalAngle,0,1,0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
+
+  // Pass the light position to GLSL
+  gl.uniform3f(u_lightPos, g_lightPos[0], g_lightPos[1], g_lightPos[2]);
+
+  // Pass the camera position to GLSL
+  gl.uniform3f(u_cameraPos, g_camera.eye.elements[0], g_camera.eye.elements[1], g_camera.eye.elements[2]);
+
+  // Pass the light status
+  gl.uniform1i(u_lightOn, g_lightOn);
+
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -474,29 +537,44 @@ function renderAllShapes(){
   //Draw the floor
   var floor = new Cube();
   floor.color = [1.0,0.0,0,0,1.0];
-  floor.textureNum=-1;
+  floor.textureNum=0;
   floor.matrix.translate(0, -2.49, 0.0);
-  floor.matrix.scale(18, 0, 13);
-  floor.matrix.translate(-.5, 0, -0.5);
+  floor.matrix.scale(5, 0, -5);
+  floor.matrix.translate(-.5, 0, -.4);
   floor.render();
 
   //Draw the sky
   var sky = new Cube();
-  sky.color = [1.0,0.0,0,0,1.0];
+  sky.color = [0.8,0.8,0.8,1.0];
   if (g_normalOn){
     sky.textureNum=-3;
   } 
 
-  else{
-    sky.textureNum=1;
-  }
-  sky.matrix.scale(-10,-10,-10);
-  sky.matrix.translate(-.1, -.5, -.4);
+
+  sky.matrix.scale(-5,-5,-5);
+  sky.matrix.translate(-.5, -.5, -.4);
   sky.render();
 
-  
+
+
+  //Draw the light
+  var light=new Cube();
+  light.color=[2,2,0,1];
+  light.matrix.translate(g_lightPos[0], g_lightPos[1], g_lightPos[2]);
+  light.matrix.scale(-.1,-.1,-.1);
+  light.matrix.translate(-.5,-.5,-.5);
+  light.render();
+
+  //Draw sphere
+  var ball = new Sphere()
+  if (g_normalOn){
+    ball.textureNum=-3;
+  } 
+  ball.matrix.translate(-1,0,-2);
+  ball.render();
+
   matrix1 = new Matrix4();
-  matrix1.translate(.5, 1, -3);
+  matrix1.translate(1, 1, -2);
   matrix1.rotate(180,0,2,0);/*
   drawBarracuda(matrix1);
   matrix1.scale(.75,.75,.75)
@@ -738,7 +816,7 @@ function drawBarracuda(matrix){
 }
 
 
-//var g_shapesList = [];
+var g_shapesList = [];
 
 //var g_points = [];  // The array for the position of a mouse press
 //var g_colors = [];  // The array to store the color of a point
